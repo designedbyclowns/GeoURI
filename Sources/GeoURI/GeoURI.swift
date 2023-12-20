@@ -117,6 +117,13 @@ public struct GeoURI {
     
     static let scheme = "geo"
     
+    static var numberFormatter: NumberFormatter = {
+        let formatter = NumberFormatter()
+        formatter.numberStyle = .decimal
+        formatter.usesSignificantDigits = true
+        return formatter
+    }()
+    
     // MARK: - Private
     
     private enum ParameterName: String, CaseIterable {
@@ -167,10 +174,6 @@ public struct GeoURI {
         return value
     }
     
-    private static var numberFormatter: NumberFormatter = {
-        let formatter = NumberFormatter()
-        formatter.numberStyle = .decimal
-        formatter.usesSignificantDigits = true
-        return formatter
-    }()
+    
 }
+
