@@ -44,40 +44,42 @@ public struct GeoURI {
     }
     
     public init(url: URL) throws {
-        guard let components = URLComponents(url: url, resolvingAgainstBaseURL: true) else {
-            throw GeoURIParsingError(url: url, kind: .badURL)
-        }
-        
-        guard components.scheme?.caseInsensitiveCompare(Self.scheme) == .orderedSame else {
-            throw GeoURIParsingError(url: url, kind: .incorrectScheme)
-        }
-        
-        let pathComponents = components.path.components(separatedBy: ",")
-        guard pathComponents.allSatisfy({
-            Double($0) != nil
-        }) else {
-            throw GeoURIParsingError(url: url, kind: .badURL)
-        }
-        
-        let coordinateComponents = pathComponents.compactMap { Double($0) }
-        
-        guard [2,3].contains(coordinateComponents.count) else {
-            throw GeoURIParsingError(url: url, kind: .badURL)
-        }
-        
         do {
-            try self.init(
-                latitude: coordinateComponents[0],
-                longitude: coordinateComponents[1],
-                altitude: coordinateComponents.indices.contains(2) ? coordinateComponents[2] : nil
-            )
+            guard let components = URLComponents(url: url, resolvingAgainstBaseURL: true) else {
+                throw GeoURIError.badURL
+            }
             
+            // scheme must be "geo"
+            guard components.scheme?.caseInsensitiveCompare(Self.scheme) == .orderedSame else {
+                throw GeoURIError.incorrectScheme
+            }
+            
+            let pathComponents = components.path.components(separatedBy: ",")
+            // path components must contain 2 or 3 doubles
+            guard [2,3].contains(pathComponents.count), pathComponents.allSatisfy({ Double($0) != nil }) else {
+                throw GeoURIError.badURL
+            }
+            
+            guard let latitude = pathComponents.double(at: 0) else {
+                throw GeoURIError.invalidLatitude
+            }
+            
+            guard let longitude = pathComponents.double(at: 1) else {
+                throw GeoURIError.invalidLongitude
+            }
+            
+            let altitude = pathComponents.double(at: 2)
+            
+            try self.init(latitude: latitude, longitude: longitude, altitude: altitude)
+            
+            // parse query items - unknown items will be igored
             if let queryItems = components.queryItems {
                 self.crs = try parseCoordinateReferenceSystem(fromQueryItems: queryItems)
                 self.uncertainty = try parseUncertainty(fromQueryItems: queryItems)
             }
             
         } catch let err as GeoURIError {
+            // wrap the error in a parsing error
             throw GeoURIParsingError(url: url, kind: err)
         } catch {
             throw GeoURIParsingError(url: url, kind: .badURL)
@@ -173,7 +175,11 @@ public struct GeoURI {
         
         return value
     }
-    
-    
 }
 
+private extension Collection where Element == String {
+    func double(at index: Index) -> Double? {
+        guard indices.contains(index) else { return nil }
+        return Double(self[index])
+    }
+}
