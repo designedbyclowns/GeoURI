@@ -8,13 +8,16 @@ import Foundation
  
  An example of such a 'geo' URI follows:
 
- ```geo:13.4125,103.8667```
+ ```
+ geo:13.4125,103.8667
+ ```
  
- - Note: See [rfc5870](https://datatracker.ietf.org/doc/html/rfc5870#ref-ISO.6709.2008)
+ > Tip: The GeoURI (rfc5870) specification can be viewed [here](https://datatracker.ietf.org/doc/html/rfc5870).
  */
 public struct GeoURI {
 
     public enum CoordinateReferenceSystem: String {
+        /// The [World Geodetic System 1984](https://earth-info.nga.mil/?dir=wgs84&action=wgs84) (WGS-84).
         case wgs84
     }
     

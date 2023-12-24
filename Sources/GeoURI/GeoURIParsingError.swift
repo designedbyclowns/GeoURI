@@ -5,9 +5,9 @@ import Foundation
  */
 public struct GeoURIParsingError: Error {
     /// The `URL` that could not be parsed.
-    let url: URL
+    public let url: URL
     /// The underlying ``GeoURIError``.
-    let kind: GeoURIError
+    public let kind: GeoURIError
 }
 
 extension GeoURIParsingError: Equatable {
@@ -18,7 +18,7 @@ extension GeoURIParsingError: Equatable {
 
 extension GeoURIParsingError: LocalizedError {
     public var errorDescription: String? {
-        var description = "An error occurred parsing the URL '\(url.absoluteString)'"
+        let description = "An error occurred parsing the URL '\(url.absoluteString)'"
         
         guard let errorDescription = kind.errorDescription, !errorDescription.isEmpty else {
             return description + "."
