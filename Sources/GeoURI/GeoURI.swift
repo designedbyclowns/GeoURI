@@ -104,7 +104,7 @@ public struct GeoURI {
     
     /// Creates a new GeoURI from the provided `URL`.
     ///
-    /// The URL must adhere to the [rfc5870](https://datatracker.ietf.org/doc/html/rfc5870#ref-ISO.6709.2008) specification.
+    /// The URL must adhere to the [rfc5870](https://datatracker.ietf.org/doc/html/rfc5870) specification.
     public init(url: URL) throws {
         do {
             guard let components = URLComponents(url: url, resolvingAgainstBaseURL: true) else {
