@@ -1,6 +1,16 @@
 import Foundation
 /**
- https://datatracker.ietf.org/doc/html/rfc5870#ref-ISO.6709.2008
+ A type that represents a URI for geographic locations using the 'geo' scheme name.
+ 
+ The scheme provides the textual representation of the location's spatial coordinates
+ in either two or three dimensions (latitude, longitude, and optionally altitude
+ for the default CRS of WGS-84).
+ 
+ An example of such a 'geo' URI follows:
+
+ ```geo:13.4125,103.8667```
+ 
+ - Note: See [rfc5870](https://datatracker.ietf.org/doc/html/rfc5870#ref-ISO.6709.2008)
  */
 public struct GeoURI {
 
@@ -8,12 +18,58 @@ public struct GeoURI {
         case wgs84
     }
     
+    /// The latitude of the identified location in decimal degrees in the reference system WGS-84.
+    ///
+    /// Latitudes in the Southern hemispheres are signed negative with a leading dash.
+    ///
+    /// Latitude values range from -90 to 90.
     public let latitude: Double
+    
+    /// The longitude of the identified location in decimal degrees in the reference system WGS-84.
+    ///
+    /// Longitude values in the Western hemispheres are signed negative with a leading dash.
+    ///
+    /// Longitude values range from -180 to 180.
+    ///
+    /// - Note: The longitude of coordinate values reflecting the poles (``latitude`` values of -90 or 90 degrees) will be set to 0.
     public let longitude: Double
+    
+    /// The altitude of the identified location in meters in the reference system WGS-84.
+    ///
+    /// A `nil` value _may_ be assumed to refer to the respective location on Earth's
+    /// physical surface at the given latitude and longitude.
+    ///
+    /// Values below the WGS-84 reference geoid (depths) are signed negative with
+    ///  a leading dash.
+    ///
+    /// - Warning: An altitude value of zero _must not_ be mistaken to refer to "ground elevation".
     public private(set) var altitude: Double?
+    
+    /// The Coordinate Reference System (CRS) used to interpret coordinate values.
+    ///
+    /// Currently the only supported CRS is the [World Geodetic System 1984](https://earth-info.nga.mil/?dir=wgs84&action=wgs84) (WGS-84).
+    ///
+    /// - Note: See [rfc5870#section-3.4.1](https://datatracker.ietf.org/doc/html/rfc5870#section-3.4.1).
     public private(set) var crs: CoordinateReferenceSystem = .wgs84
+    
+    /// Indicates the amount of uncertainty in the location as a value in meters.
+    ///
+    /// A `nil` value indicates that the uncertainty is unknown.
+    ///
+    /// If the intent is to indicate a specific point in space, the value _may_ be set to zero. The value applies to all dimensions of the location.
+    ///
+    /// - Tip: Zero uncertainty and absent uncertainty are never the same thing.
+    /// See [rfc5870#section-3.4.3](https://datatracker.ietf.org/doc/html/rfc5870#section-3.4.3).
+    ///
+    /// - Warning: The number of digits of the values in ``latitude``, ``longitude``, and ``altitude`` _must not_ be interpreted as an indication to the level of uncertainty.
     public private(set) var uncertainty: Double?
     
+    /// Creates a new GeoURI.
+    /// - Parameters:
+    ///   - latitude: The ``latitude`` of the identified location in decimal degrees in the reference system WGS-84.
+    ///   - longitude: The ``longitude`` of the identified location in decimal degrees in the reference system WGS-84.
+    ///   - altitude: The ``altitude`` of the identified location in meters in the reference system WGS-84.
+    ///   - uncertainty: The amount of ``uncertainty`` in the location as a value in meters.
     public init(latitude: Double, longitude: Double, altitude: Double? = nil, uncertainty: Double? = nil) throws {
         guard (-90...90).contains(latitude) else {
             throw GeoURIError.invalidLatitude
@@ -43,6 +99,9 @@ public struct GeoURI {
         self.uncertainty = uncertainty
     }
     
+    /// Creates a new GeoURI from the provided `URL`.
+    ///
+    /// The URL must adhere to the [rfc5870](https://datatracker.ietf.org/doc/html/rfc5870#ref-ISO.6709.2008) specification.
     public init(url: URL) throws {
         do {
             guard let components = URLComponents(url: url, resolvingAgainstBaseURL: true) else {
@@ -86,10 +145,12 @@ public struct GeoURI {
         }
     }
     
+    /// The altitude represented as a `Measurement` type.
     public var altitudeMeasurement: Measurement<UnitLength>? {
         altitude.flatMap { Measurement<UnitLength>(value: $0, unit: .meters) }
     }
     
+    /// A `URL` as defined by the [rfc5870](https://datatracker.ietf.org/doc/html/rfc5870#ref-ISO.6709.2008).
     public var url: URL? {
         var components = URLComponents()
         components.scheme = Self.scheme

@@ -1,3 +1,5 @@
+#if canImport(CoreLocation)
+
 import XCTest
 import GeoURI
 import CoreLocation
@@ -227,3 +229,5 @@ final class GeoURI_CoreLocationTests: XCTestCase {
         XCTAssertEqual(Double.zero, location.verticalAccuracy)
     }
 }
+
+#endif
