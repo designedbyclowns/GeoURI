@@ -16,6 +16,9 @@ let package = Package(
             name: "GeoURI",
             targets: ["GeoURI"]),
     ],
+    dependencies: [
+        .package(url: "https://github.com/apple/swift-docc-plugin", .upToNextMajor(from: "1.0.0")),
+    ],
     targets: [
         .target(
             name: "GeoURI"),
