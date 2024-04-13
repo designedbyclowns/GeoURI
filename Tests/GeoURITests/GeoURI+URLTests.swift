@@ -1,8 +1,8 @@
 import XCTest
 @testable import GeoURI
 
-final class URLParsingTests: XCTestCase {
-    
+final class GeoURI_URLTests: XCTestCase {
+
     var geoURL: URL!
     
     override func setUpWithError() throws {
@@ -69,7 +69,6 @@ final class URLParsingTests: XCTestCase {
         XCTAssertThrowsError(try GeoURI(url: url)) { error in
             XCTAssertEqual(error as? GeoURIParsingError, GeoURIParsingError(url: url, kind: .badURL))
         }
-    
     }
     
     func testLatitudeBounds() throws {
@@ -236,5 +235,48 @@ final class URLParsingTests: XCTestCase {
         url = geoURL.appending(queryItems: [item])
         geoURI = try GeoURI(url: url)
         XCTAssertEqual(Double(123), geoURI.uncertainty)
+    }
+
+    func testUrl() throws {
+        var geoURI = try GeoURI(latitude: 48.2010, longitude: 16.3695)
+        XCTAssertNotNil(geoURI.url)
+        
+        var expected = try XCTUnwrap(URL(string: "geo:48.201,16.3695?crs=wgs84"))
+        XCTAssertEqual(expected, geoURI.url)
+        
+        geoURI = try GeoURI(latitude: 48.2010, longitude: 16.3695, altitude: 183)
+        expected = try XCTUnwrap(URL(string: "geo:48.201,16.3695,183?crs=wgs84"))
+        XCTAssertEqual(expected, geoURI.url)
+        
+        geoURI = try GeoURI(latitude: 48.2010, longitude: 16.3695, altitude: 123.45, uncertainty: 666)
+        expected = try XCTUnwrap(URL(string: "geo:48.201,16.3695,123.45?crs=wgs84&u=666"))
+        XCTAssertEqual(expected, geoURI.url)
+    }
+    
+    func testPolarURL() throws {
+        // A longitude of 16.3695 a the poles should be 0 in the resulting url
+        var geoURI = try GeoURI(latitude: 90.0, longitude: 16.3695)
+        XCTAssertNotNil(geoURI.url)
+        var expected = try XCTUnwrap(URL(string: "geo:90,0?crs=wgs84"))
+        XCTAssertEqual(expected, geoURI.url)
+        
+        geoURI = try GeoURI(latitude: -90.0, longitude: 16.3695)
+        XCTAssertNotNil(geoURI.url)
+        expected = try XCTUnwrap(URL(string: "geo:-90,0?crs=wgs84"))
+        XCTAssertEqual(expected, geoURI.url)
+    }
+    
+    func testDatelineURL() throws {
+        // A longitude of 180.0 should be 180 in the resulting url
+        var geoURI = try GeoURI(latitude: 48.2010, longitude: 180.0)
+        XCTAssertNotNil(geoURI.url)
+        var expected = try XCTUnwrap(URL(string: "geo:48.201,180?crs=wgs84"))
+        XCTAssertEqual(expected, geoURI.url)
+        
+        // A longitude of -180.0 should be 180 in the resulting url
+        geoURI = try GeoURI(latitude: 48.2010, longitude: -180.0)
+        XCTAssertNotNil(geoURI.url)
+        expected = try XCTUnwrap(URL(string: "geo:48.201,180?crs=wgs84"))
+        XCTAssertEqual(expected, geoURI.url)
     }
 }

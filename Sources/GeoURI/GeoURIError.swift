@@ -1,6 +1,7 @@
 import Foundation
 
 public enum GeoURIError: Error, Equatable {
+    case malformed
     case badURL
     case incorrectScheme
     case invalidLatitude
@@ -14,8 +15,10 @@ public enum GeoURIError: Error, Equatable {
 extension GeoURIError: LocalizedError {
     public var errorDescription: String? {
         switch self {
+        case .malformed:
+            return "Syntax is invalid."
         case .badURL:
-            return "The URL is not a valid GeoURI"
+            return "The URL is not a valid GeoURI."
         case .duplicateQueryItem(let name):
             return "The '\(name)' query item was specified more than once."
         case .incorrectScheme:
@@ -35,7 +38,7 @@ extension GeoURIError: LocalizedError {
     
     public var failureReason: String? {
         switch self {
-        case .badURL, .incorrectScheme, .invalidQueryItem(_):
+        case .malformed, .badURL, .incorrectScheme, .invalidQueryItem(_):
             return errorDescription
         case .invalidLatitude:
             return "Latitude values range from -90 to 90."
@@ -53,4 +56,8 @@ extension GeoURIError: LocalizedError {
     public var recoverySuggestion: String? {
         "Review the GeoURI specification: (https://datatracker.ietf.org/doc/html/rfc5870#ref-ISO.6709.2008)."
     }
+}
+
+extension GeoURIError: CustomNSError {
+    public static var errorDomain = "com.desigendbyclowns.GeoURI"
 }

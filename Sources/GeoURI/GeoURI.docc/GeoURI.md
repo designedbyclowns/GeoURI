@@ -53,7 +53,7 @@ _Mount Everest – with an altitude of 8,848.86 m (29,031.7 ft) is earth's highe
 The geo URI specification also allows for an optional "uncertainty" value, separated by a semicolon, representing the uncertainty of the location in meters, and is described using the "u" URI parameter.
 
 ```
-geo:11.373333,142.591667,-10920;u=10
+geo:11.373333,142.591667,-10920?u=10
 ```
 
 _Challenger Deep – the deepest known point of the seabed of Earth, located in the western Pacific Ocean at the southern end of the Mariana Trench with an uncertainty of ± 10 meters._

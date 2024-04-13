@@ -1,5 +1,5 @@
 extension GeoURI: Equatable {
-    public static func == (lhs: Self, rhs: Self) -> Bool {
+    public static func == (lhs: GeoURI, rhs: GeoURI) -> Bool {
         // See https://datatracker.ietf.org/doc/html/rfc5870#section-3.4.4
         return lhs.latitude == rhs.latitude &&
         lhs.longitude == rhs.longitude &&

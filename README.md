@@ -65,13 +65,13 @@ let urlString = geoURI?.url.absoluteString // "geo:48.2010,16.3695?crs=wgs84"
 import GeoURI
 
 if let url = URL(string: "geo:-48.876667,-123.393333") {
-	do {
-		let geoURI = try GeoURI(url: url)
-	} catch let parsingError as? GeoURIParsingError {
-		print("A parsing error occurred: \(parsingError.errorDescription)")
-	} catch {
-		print("\(error)")
-	}
+    do {
+        let geoURI = try GeoURI(url: url)
+    } catch let parsingError as? GeoURIParsingError {
+        print("A parsing error occurred: \(parsingError.errorDescription)")
+    } catch {
+        print("\(error)")
+    }
 }
 ```
 

@@ -5,16 +5,16 @@ final class GeoURI_CustomStringConvertibleTests: XCTestCase {
 
     func testDescription() throws {
         var geoURI = try GeoURI(latitude: 48.2010, longitude: 16.3695)
-        XCTAssertEqual("geo:48.201,16.3695?crs=wgs84", geoURI.description)
+        XCTAssertEqual("geo:48.201,16.3695;crs=wgs84", geoURI.description)
         
         geoURI = try GeoURI(latitude: 48.2010, longitude: 16.3695, altitude: 183)
-        XCTAssertEqual("geo:48.201,16.3695,183?crs=wgs84", geoURI.description)
+        XCTAssertEqual("geo:48.201,16.3695,183;crs=wgs84", geoURI.description)
         
         geoURI = try GeoURI(latitude: 48.2010, longitude: 16.3695, altitude: 183, uncertainty: 66.60)
-        XCTAssertEqual("geo:48.201,16.3695,183?crs=wgs84&u=66.6", geoURI.description)
+        XCTAssertEqual("geo:48.201,16.3695,183;crs=wgs84;u=66.6", geoURI.description)
         
         geoURI = try GeoURI(latitude: 48.2010, longitude: 16.3695, uncertainty: 66.60)
-        XCTAssertEqual("geo:48.201,16.3695?crs=wgs84&u=66.6", geoURI.description)
+        XCTAssertEqual("geo:48.201,16.3695;crs=wgs84;u=66.6", geoURI.description)
     }
 
     func testDebugDescription() throws {

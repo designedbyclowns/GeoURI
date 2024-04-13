@@ -1,4 +1,6 @@
 import Foundation
+import RegexBuilder
+
 /**
  A type that represents a URI for geographic locations using the 'geo' scheme name.
  
@@ -14,7 +16,7 @@ import Foundation
  
  > Tip: The GeoURI (rfc5870) specification can be viewed [here](https://datatracker.ietf.org/doc/html/rfc5870).
  */
-public struct GeoURI {
+public final class GeoURI {
 
     public enum CoordinateReferenceSystem: String {
         /// The [World Geodetic System 1984](https://earth-info.nga.mil/?dir=wgs84&action=wgs84) (WGS-84).
@@ -102,81 +104,37 @@ public struct GeoURI {
         self.uncertainty = uncertainty
     }
     
-    /// Creates a new GeoURI from the provided `URL`.
+    /// Creates a new GeoURI from the provided `String`.
     ///
-    /// The URL must adhere to the [rfc5870](https://datatracker.ietf.org/doc/html/rfc5870) specification.
-    public init(url: URL) throws {
-        do {
-            guard let components = URLComponents(url: url, resolvingAgainstBaseURL: true) else {
-                throw GeoURIError.badURL
-            }
-            
-            // scheme must be "geo"
-            guard components.scheme?.caseInsensitiveCompare(Self.scheme) == .orderedSame else {
-                throw GeoURIError.incorrectScheme
-            }
-            
-            let pathComponents = components.path.components(separatedBy: ",")
-            // path components must contain 2 or 3 doubles
-            guard [2,3].contains(pathComponents.count), pathComponents.allSatisfy({ Double($0) != nil }) else {
-                throw GeoURIError.badURL
-            }
-            
-            guard let latitude = pathComponents.double(at: 0) else {
-                throw GeoURIError.invalidLatitude
-            }
-            
-            guard let longitude = pathComponents.double(at: 1) else {
-                throw GeoURIError.invalidLongitude
-            }
-            
-            let altitude = pathComponents.double(at: 2)
-            
-            try self.init(latitude: latitude, longitude: longitude, altitude: altitude)
-            
-            // parse query items - unknown items will be igored
-            if let queryItems = components.queryItems {
-                self.crs = try parseCoordinateReferenceSystem(fromQueryItems: queryItems)
-                self.uncertainty = try parseUncertainty(fromQueryItems: queryItems)
-            }
-            
-        } catch let err as GeoURIError {
-            // wrap the error in a parsing error
-            throw GeoURIParsingError(url: url, kind: err)
-        } catch {
-            throw GeoURIParsingError(url: url, kind: .badURL)
+    /// The string must adhere to the [rfc5870](https://datatracker.ietf.org/doc/html/rfc5870) specification.
+    public convenience init(string: String) throws {
+        
+        let stringValue = string.lowercased()
+                
+        guard stringValue.unicodeScalars.allSatisfy({ Self.allowedCharacters.contains($0) }) else {
+            throw GeoURIError.malformed
         }
+        
+        guard !stringValue.hasSuffix(","), !stringValue.hasSuffix("=") else {
+            throw GeoURIError.malformed
+        }
+        
+        guard let match = stringValue.lowercased().firstMatch(of: Self.regex) else {
+            throw GeoURIError.malformed
+        }
+        
+        if let crs = match.4 {
+            guard let _ = CoordinateReferenceSystem(rawValue: String(crs)) else {
+                throw GeoURIError.unsupportedCoordinateReferenceSystem(String(crs))
+            }
+        }
+        
+        try self.init(latitude: match.1, longitude: match.2, altitude: match.3, uncertainty: match.5)
     }
     
     /// The altitude represented as a `Measurement` type.
     public var altitudeMeasurement: Measurement<UnitLength>? {
         altitude.flatMap { Measurement<UnitLength>(value: $0, unit: .meters) }
-    }
-    
-    /// A `URL` as defined by the [rfc5870](https://datatracker.ietf.org/doc/html/rfc5870#ref-ISO.6709.2008).
-    public var url: URL? {
-        var components = URLComponents()
-        components.scheme = Self.scheme
-        components.path = [latitude, longitude, altitude]
-            .compactMap { $0 }
-            .compactMap { Self.numberFormatter.string(from: NSNumber(value: $0)) }
-            .joined(separator: ",")
-        
-        var queryItems: [URLQueryItem] = [
-            URLQueryItem(name: ParameterName.crs.name, value: crs.rawValue)
-        ]
-        
-        if let uncertainty {
-            queryItems.append(
-                URLQueryItem(
-                    name: ParameterName.uncertainty.name,
-                    value: Self.numberFormatter.string(from: NSNumber(value: uncertainty))
-                )
-            )
-        }
-        components.queryItems = queryItems
-
-        return components.url
     }
     
     // MARK: - Internal
@@ -186,64 +144,55 @@ public struct GeoURI {
     static var numberFormatter: NumberFormatter = {
         let formatter = NumberFormatter()
         formatter.numberStyle = .decimal
-        formatter.usesSignificantDigits = true
+        formatter.generatesDecimalNumbers = true
+        formatter.minimumFractionDigits = 0
+        // 8 decimal places represents 1.1132 mm at the equator.
+        formatter.maximumFractionDigits = 8
+        formatter.decimalSeparator = "."
+        formatter.positivePrefix = ""
+        formatter.negativePrefix = "-"
+        formatter.groupingSeparator = ""
         return formatter
     }()
     
     // MARK: - Private
     
-    private enum ParameterName: String, CaseIterable {
-        case crs
-        case uncertainty = "u"
-        
-        var name: String { rawValue }
+    private static let regex = Regex {
+        Anchor.startOfLine
+        "geo:"
+        Capture {
+            One(.localizedDouble(locale: .current)) // 1 latitude
+        }
+        ","
+        Capture {
+            One(.localizedDouble(locale: .current)) // 2 longitude
+        }
+        Optionally {
+            ","
+            Capture {
+                One(.localizedDouble(locale: .current)) // 3 altitude
+            }
+        }
+        Optionally {
+            ";crs="
+            Capture {
+                OneOrMore(.word) // 4 crs
+            }
+        }
+        Optionally {
+            ";u="
+            Capture {
+                One(.localizedDouble(locale: .current)) // 5 uncertainty
+            }
+        }
     }
     
-    private func parseCoordinateReferenceSystem(fromQueryItems queryItems: [URLQueryItem]) throws -> CoordinateReferenceSystem {
-        let value = try value(forParameter: .crs, in: queryItems)
-        guard let value else { return .wgs84 }
-        
-        guard let crs = CoordinateReferenceSystem(rawValue: value.lowercased()) else {
-            throw GeoURIError.unsupportedCoordinateReferenceSystem(value)
-        }
-        
-        return crs
-    }
-    
-    private func parseUncertainty(fromQueryItems queryItems: [URLQueryItem]) throws -> Double? {
-        let value = try value(forParameter: .uncertainty, in: queryItems)
-        guard let value else { return nil }
-        
-        guard let uncertainty = Double(value), uncertainty >= .zero else {
-            throw GeoURIError.invalidUncertainty
-        }
-        
-        return uncertainty
-    }
-    
-    private func value(forParameter parameter: ParameterName, in queryItems: [URLQueryItem]) throws -> String? {
-        
-        let items = queryItems.filter {
-            $0.name.caseInsensitiveCompare(parameter.name) == .orderedSame
-        }
-        
-        guard !items.isEmpty else { return nil }
-        
-        guard items.count <= 1 else {
-            throw GeoURIError.duplicateQueryItem(name: parameter.name)
-        }
-        
-        guard let value = items.first?.value else {
-            throw GeoURIError.invalidQueryItem(name: parameter.name)
-        }
-        
-        return value
-    }
+    private static let allowedCharacters = {
+        var allowed = CharacterSet()
+        allowed.formUnion(.lowercaseLetters)
+        allowed.formUnion(.decimalDigits)
+        allowed.insert(charactersIn: ":-,.;=")
+        return allowed
+    }()
 }
 
-private extension Collection where Element == String {
-    func double(at index: Index) -> Double? {
-        guard indices.contains(index) else { return nil }
-        return Double(self[index])
-    }
-}

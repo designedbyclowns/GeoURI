@@ -38,7 +38,7 @@ Additional query parameters are ignored.
 The Coordinate Reference System (CRS) used to interpret coordinate values.
 
 ```
-geo:-48.876667,-123.393333;crs=wgs84
+geo:-48.876667,-123.393333?crs=wgs84
 ```
 
 Currently the only supported CRS is the [World Geodetic System 1984](https://earth-info.nga.mil/?dir=wgs84&action=wgs84) (WGS-84), the value for which is "wgs84". 
@@ -50,7 +50,7 @@ If not provided, WGS-84 is assumed. See [rfc5870#section-3.4.1](https://datatrac
 The ``GeoURI/uncertainty`` parameter represents the "uncertainty" of the location in meters, and is described using the "u" URI parameter.
 
 ```
-geo:11.373333,142.591667,-10920;u=10
+geo:11.373333,142.591667,-10920?u=10
 ```
 
 If present, its value must be greater than or equal to zero. When not provided, the the uncertainty is assumed to be unknown.
