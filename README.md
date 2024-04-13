@@ -1,3 +1,10 @@
+[![Latest Release](https://img.shields.io/github/release/designedbyclowns/GeoURI/all.svg)](https://github.com/designedbyclowns/GeoURI/releases)
+[![](https://img.shields.io/endpoint?url=https%3A%2F%2Fswiftpackageindex.com%2Fapi%2Fpackages%2Fdesignedbyclowns%2FGeoURI%2Fbadge%3Ftype%3Dswift-versions)](https://swiftpackageindex.com/designedbyclowns/GeoURI)
+[![](https://img.shields.io/endpoint?url=https%3A%2F%2Fswiftpackageindex.com%2Fapi%2Fpackages%2Fdesignedbyclowns%2FGeoURI%2Fbadge%3Ftype%3Dplatforms)](https://swiftpackageindex.com/designedbyclowns/GeoURI)
+[![Swift Package Manager](https://img.shields.io/badge/SPM-compatible-brightgreen.svg)](https://swift.org/package-manager)
+[![License](https://img.shields.io/github/license/designedbyclowns/GeoURI)](LICENSE)
+
+
 # GeoURI
 
 A Swift implementation of the geo URI scheme.
@@ -10,7 +17,7 @@ protocol-independent way.
 
 ## Requirements
 
-iOS 12, macOS 10.13, tvOS 12, watchOS 4
+iOS 16, macOS 10.13, tvOS 16, watchOS 9
 
 ## Installation
 
