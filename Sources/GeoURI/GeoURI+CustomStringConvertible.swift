@@ -2,17 +2,7 @@ import Foundation
 
 extension GeoURI: CustomStringConvertible {
     public var description: String {
-        let path = [latitude, longitude, altitude].compactMap { $0 }
-            .compactMap { Self.numberFormatter.string(from: NSNumber(value: $0)) }
-            .joined(separator: ",")
-        
-        var desc =  "geo:\(path);crs=\(crs.rawValue)"
-        
-        if let uncertainty, let uVal = Self.numberFormatter.string(from: NSNumber(value: uncertainty)) {
-            desc.append(";u=\(uVal)")
-        }
-        
-        return desc
+        self.formatted(.uri)
     }
 }
 

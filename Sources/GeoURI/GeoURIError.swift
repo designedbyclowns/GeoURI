@@ -59,5 +59,5 @@ extension GeoURIError: LocalizedError {
 }
 
 extension GeoURIError: CustomNSError {
-    public static var errorDomain = "com.desigendbyclowns.GeoURI"
+    public static let errorDomain = "com.desigendbyclowns.GeoURI"
 }
