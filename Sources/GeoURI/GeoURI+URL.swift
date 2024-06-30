@@ -4,7 +4,7 @@ extension GeoURI {
     /// Creates a new GeoURI from the provided `URL`.
     ///
     /// The URL must adhere to the [rfc5870](https://datatracker.ietf.org/doc/html/rfc5870) specification.
-    public init(url: URL) throws {
+    public init(url: URL) throws(GeoURIParsingError) {
         do {
             guard let components = URLComponents(url: url, resolvingAgainstBaseURL: true) else {
                 throw GeoURIError.badURL
@@ -106,7 +106,7 @@ extension GeoURI {
         return uncertainty
     }
     
-    private static func value(forParameter parameter: ParameterName, in queryItems: [URLQueryItem]) throws -> String? {
+    private static func value(forParameter parameter: ParameterName, in queryItems: [URLQueryItem]) throws(GeoURIError) -> String? {
         
         let items = queryItems.filter {
             $0.name.caseInsensitiveCompare(parameter.name) == .orderedSame
@@ -115,11 +115,11 @@ extension GeoURI {
         guard !items.isEmpty else { return nil }
         
         guard items.count <= 1 else {
-            throw GeoURIError.duplicateQueryItem(name: parameter.name)
+            throw .duplicateQueryItem(name: parameter.name)
         }
         
         guard let value = items.first?.value else {
-            throw GeoURIError.invalidQueryItem(name: parameter.name)
+            throw .invalidQueryItem(name: parameter.name)
         }
         
         return value

@@ -4,12 +4,12 @@ import CoreLocation
 
 extension GeoURI {
     /// Creates a new ``GeoURI`` from a `CLLocationCoordinate2D`.
-    public init(coordinate: CLLocationCoordinate2D) throws {
+    public init(coordinate: CLLocationCoordinate2D) throws(GeoURIError) {
         try self.init(latitude: coordinate.latitude, longitude: coordinate.longitude)
     }
     
     /// Creates a new ``GeoURI`` from a `CLLocation` object.
-    public init(location: CLLocation) throws {
+    public init(location: CLLocation) throws(GeoURIError) {
         try self.init(
             latitude: location.coordinate.latitude,
             longitude: location.coordinate.longitude,
