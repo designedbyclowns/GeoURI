@@ -50,8 +50,6 @@ struct GeoURI_URLTests {
         }
     }
     
-    
-    
     /**
      'geo' URIs with longitude values outside the range of -180 to 180
      decimal degrees or with latitude values outside the range of -90 to

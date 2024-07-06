@@ -54,7 +54,7 @@ extension GeoURI {
         components.scheme = Self.scheme
         components.path = [latitude, longitude, altitude]
             .compactMap { $0 }
-            .compactMap { Self.numberFormatter.string(from: NSNumber(value: $0)) }
+            .compactMap { $0.formatted(GeoURI.numberStyle) }
             .joined(separator: ",")
         
         var queryItems: [URLQueryItem] = [
@@ -65,7 +65,7 @@ extension GeoURI {
             queryItems.append(
                 URLQueryItem(
                     name: ParameterName.uncertainty.name,
-                    value: Self.numberFormatter.string(from: NSNumber(value: uncertainty))
+                    value: uncertainty.formatted(GeoURI.numberStyle)
                 )
             )
         }

@@ -141,20 +141,6 @@ public struct GeoURI: Sendable {
     
     static let scheme = "geo"
     
-    static let numberFormatter: NumberFormatter = {
-        let formatter = NumberFormatter()
-        formatter.numberStyle = .decimal
-        formatter.generatesDecimalNumbers = true
-        formatter.minimumFractionDigits = 0
-        // 8 decimal places represents 1.1132 mm at the equator.
-        formatter.maximumFractionDigits = 8
-        formatter.decimalSeparator = "."
-        formatter.positivePrefix = ""
-        formatter.negativePrefix = "-"
-        formatter.groupingSeparator = ""
-        return formatter
-    }()
-    
     // MARK: - Private
     
     nonisolated(unsafe) private static let regex = Regex {
@@ -187,7 +173,7 @@ public struct GeoURI: Sendable {
         }
     }
     
-    private static let allowedCharacters = {
+    private static let allowedCharacters: CharacterSet = {
         var allowed = CharacterSet()
         allowed.formUnion(.lowercaseLetters)
         allowed.formUnion(.decimalDigits)
