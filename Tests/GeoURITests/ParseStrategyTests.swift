@@ -1,7 +1,7 @@
 import Testing
 @testable import GeoURI
 
-struct StringParsingTests {
+struct ParseStrategyTests {
 
     @Test func InitWithString() throws {
         let geoURI = try GeoURI(string: "geo:48.2010,16.3695")
