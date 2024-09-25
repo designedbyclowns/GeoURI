@@ -16,9 +16,9 @@ import RegexBuilder
  
  > Tip: The GeoURI (rfc5870) specification can be viewed [here](https://datatracker.ietf.org/doc/html/rfc5870).
  */
-public final class GeoURI {
+public struct GeoURI: Sendable {
 
-    public enum CoordinateReferenceSystem: String {
+    public enum CoordinateReferenceSystem: String, Sendable {
         /// The [World Geodetic System 1984](https://earth-info.nga.mil/?dir=wgs84&action=wgs84) (WGS-84).
         case wgs84
     }
@@ -48,14 +48,14 @@ public final class GeoURI {
     ///  a leading dash.
     ///
     /// - Warning: An altitude value of zero _must not_ be mistaken to refer to "ground elevation".
-    public private(set) var altitude: Double?
+    public let altitude: Double?
     
     /// The Coordinate Reference System (CRS) used to interpret coordinate values.
     ///
     /// Currently the only supported CRS is the [World Geodetic System 1984](https://earth-info.nga.mil/?dir=wgs84&action=wgs84) (WGS-84).
     ///
     /// - Note: See [rfc5870#section-3.4.1](https://datatracker.ietf.org/doc/html/rfc5870#section-3.4.1).
-    public private(set) var crs: CoordinateReferenceSystem = .wgs84
+    public let crs: CoordinateReferenceSystem
     
     /// Indicates the amount of uncertainty in the location as a value in meters.
     ///
@@ -67,7 +67,7 @@ public final class GeoURI {
     /// See [rfc5870#section-3.4.3](https://datatracker.ietf.org/doc/html/rfc5870#section-3.4.3).
     ///
     /// - Warning: The number of digits of the values in ``latitude``, ``longitude``, and ``altitude`` _must not_ be interpreted as an indication to the level of uncertainty.
-    public private(set) var uncertainty: Double?
+    public let uncertainty: Double?
     
     /// Creates a new GeoURI.
     /// - Parameters:
@@ -75,14 +75,14 @@ public final class GeoURI {
     ///   - longitude: The ``longitude`` of the identified location in decimal degrees in the reference system WGS-84.
     ///   - altitude: The ``altitude`` of the identified location in meters in the reference system WGS-84.
     ///   - uncertainty: The amount of ``uncertainty`` in the location as a value in meters.
-    public init(latitude: Double, longitude: Double, altitude: Double? = nil, uncertainty: Double? = nil) throws {
-        guard (-90...90).contains(latitude) else {
-            throw GeoURIError.invalidLatitude
+    public init(latitude: Double, longitude: Double, altitude: Double? = nil, uncertainty: Double? = nil) throws(GeoURIError) {
+        guard (-90.0...90.0).contains(latitude) else {
+            throw .invalidLatitude
         }
         self.latitude = latitude
         
         guard (-180.0...180.0).contains(longitude) else {
-            throw GeoURIError.invalidLongitude
+            throw .invalidLongitude
         }
         
         // normalize the longitude
@@ -98,34 +98,35 @@ public final class GeoURI {
         
         if let uncertainty {
             guard uncertainty >= 0 else {
-                throw GeoURIError.invalidUncertainty
+                throw .invalidUncertainty
             }
         }
         self.uncertainty = uncertainty
+        self.crs = .wgs84
     }
     
     /// Creates a new GeoURI from the provided `String`.
     ///
     /// The string must adhere to the [rfc5870](https://datatracker.ietf.org/doc/html/rfc5870) specification.
-    public convenience init(string: String) throws {
+    public init(string: String) throws(GeoURIError) {
         
         let stringValue = string.lowercased()
                 
         guard stringValue.unicodeScalars.allSatisfy({ Self.allowedCharacters.contains($0) }) else {
-            throw GeoURIError.malformed
+            throw .malformed
         }
         
         guard !stringValue.hasSuffix(","), !stringValue.hasSuffix("=") else {
-            throw GeoURIError.malformed
+            throw .malformed
         }
         
         guard let match = stringValue.lowercased().firstMatch(of: Self.regex) else {
-            throw GeoURIError.malformed
+            throw .malformed
         }
         
         if let crs = match.4 {
             guard let _ = CoordinateReferenceSystem(rawValue: String(crs)) else {
-                throw GeoURIError.unsupportedCoordinateReferenceSystem(String(crs))
+                throw .unsupportedCoordinateReferenceSystem(String(crs))
             }
         }
         
@@ -141,23 +142,9 @@ public final class GeoURI {
     
     static let scheme = "geo"
     
-    static var numberFormatter: NumberFormatter = {
-        let formatter = NumberFormatter()
-        formatter.numberStyle = .decimal
-        formatter.generatesDecimalNumbers = true
-        formatter.minimumFractionDigits = 0
-        // 8 decimal places represents 1.1132 mm at the equator.
-        formatter.maximumFractionDigits = 8
-        formatter.decimalSeparator = "."
-        formatter.positivePrefix = ""
-        formatter.negativePrefix = "-"
-        formatter.groupingSeparator = ""
-        return formatter
-    }()
-    
     // MARK: - Private
     
-    private static let regex = Regex {
+    nonisolated(unsafe) private static let regex = Regex {
         Anchor.startOfLine
         "geo:"
         Capture {
@@ -187,7 +174,7 @@ public final class GeoURI {
         }
     }
     
-    private static let allowedCharacters = {
+    private static let allowedCharacters: CharacterSet = {
         var allowed = CharacterSet()
         allowed.formUnion(.lowercaseLetters)
         allowed.formUnion(.decimalDigits)

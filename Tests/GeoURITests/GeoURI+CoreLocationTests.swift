@@ -1,108 +1,70 @@
 #if canImport(CoreLocation)
 
-import XCTest
-import GeoURI
+import Testing
 import CoreLocation
+@testable import GeoURI
 
-final class GeoURI_CoreLocationTests: XCTestCase {
+struct GeoURI_CoreLocationTests {
     
-    // MARK: - init coordinate
-
-    func testInitWithCoordinate() throws {
+    // MARK: - Coordinate Initialization
+    
+    @Test func initWithCoordinate() throws {
         let coordinate = CLLocationCoordinate2D(latitude: 48.2010, longitude: 16.3695)
         let geoURI = try GeoURI(coordinate: coordinate)
         
-        XCTAssertEqual(coordinate.latitude, geoURI.latitude)
-        XCTAssertEqual(coordinate.longitude, geoURI.longitude)
-        XCTAssertNil(geoURI.altitude)
-        XCTAssertEqual(.wgs84, geoURI.crs)
-        XCTAssertNil(geoURI.uncertainty)
+        #expect(geoURI.latitude == 48.201)
+        #expect(geoURI.longitude == 16.3695)
+        #expect(geoURI.altitude == nil)
+        #expect(geoURI.crs == .wgs84)
+        #expect(geoURI.uncertainty == nil)
     }
     
-    func testInitWithInvalidCoordinateLatitude() throws {
-        var coordinate = CLLocationCoordinate2D(latitude: 90.01, longitude: 16.3695)
-        XCTAssertThrowsError(try GeoURI(coordinate: coordinate)) { error in
-            XCTAssertEqual(error as? GeoURIError, .invalidLatitude)
-        }
+    @Test(arguments: [90.01, -90.01])
+    func invalidCoordinateLatitude(arg: CLLocationDegrees) {
+        let coordinate = CLLocationCoordinate2D(latitude: arg, longitude: 16.3695)
         
-        coordinate = CLLocationCoordinate2D(latitude: -90.01, longitude: 16.3695)
-        XCTAssertThrowsError(try GeoURI(coordinate: coordinate)) { error in
-            XCTAssertEqual(error as? GeoURIError, .invalidLatitude)
+        #expect(throws: GeoURIError.invalidLatitude) {
+            try GeoURI(coordinate: coordinate)
         }
     }
     
-    func testInitWithInvalidCoordinateLongitude() throws {
-        var coordinate = CLLocationCoordinate2D(latitude: 48.2010, longitude: 180.01)
-        XCTAssertThrowsError(try GeoURI(coordinate: coordinate)) { error in
-            XCTAssertEqual(error as? GeoURIError, .invalidLongitude)
-        }
+    @Test(arguments: [180.01, -180.01])
+    func invalidCoordinateLongitude(arg: CLLocationDegrees) {
+        let coordinate = CLLocationCoordinate2D(latitude: 48.2010, longitude: arg)
         
-        coordinate = CLLocationCoordinate2D(latitude: 48.2010, longitude: -180.01)
-        XCTAssertThrowsError(try GeoURI(coordinate: coordinate)) { error in
-            XCTAssertEqual(error as? GeoURIError, .invalidLongitude)
+        #expect(throws: GeoURIError.invalidLongitude) {
+            try GeoURI(coordinate: coordinate)
         }
     }
-    
-    func testInitWithPolarCoordinate() throws {
-        // north pole
-        var coordinate = CLLocationCoordinate2D(latitude: 90.0, longitude: 16.3695)
-        var geoURI = try GeoURI(coordinate: coordinate)
-        
-        XCTAssertEqual(coordinate.latitude, geoURI.latitude)
-        // longitude should be 0
-        XCTAssertEqual(Double.zero, geoURI.longitude)
-        XCTAssertNil(geoURI.altitude)
-        XCTAssertEqual(.wgs84, geoURI.crs)
-        XCTAssertNil(geoURI.uncertainty)
-        
-        // south pole
-        coordinate = CLLocationCoordinate2D(latitude: -90.0, longitude: 16.3695)
-        geoURI = try GeoURI(coordinate: coordinate)
-        
-        XCTAssertEqual(coordinate.latitude, geoURI.latitude)
-        // longitude should be 0
-        XCTAssertEqual(Double.zero, geoURI.longitude)
-        XCTAssertNil(geoURI.altitude)
-        XCTAssertEqual(.wgs84, geoURI.crs)
-        XCTAssertNil(geoURI.uncertainty)
+   
+    @Test(arguments: [90, -90])
+    func polarCoordinates(arg: CLLocationDegrees) throws {
+        let coordinate = CLLocationCoordinate2D(latitude: arg, longitude: 16.3695)
+        let geoURI = try GeoURI(coordinate: coordinate)
+        #expect(geoURI.longitude == .zero)
     }
     
-    func testInitWithDatelineCoordinate() throws {
-        var coordinate = CLLocationCoordinate2D(latitude: 48.2010, longitude: 180)
-        var geoURI = try GeoURI(coordinate: coordinate)
-        
-        XCTAssertEqual(coordinate.latitude, geoURI.latitude)
-        XCTAssertEqual(Double(180), geoURI.longitude)
-        XCTAssertNil(geoURI.altitude)
-        XCTAssertEqual(.wgs84, geoURI.crs)
-        XCTAssertNil(geoURI.uncertainty)
-        
-        coordinate = CLLocationCoordinate2D(latitude: 48.2010, longitude: -180)
-        geoURI = try GeoURI(coordinate: coordinate)
-        
-        XCTAssertEqual(coordinate.latitude, geoURI.latitude)
-        // longitude should be 180 NOT -180
-        XCTAssertEqual(Double(180), geoURI.longitude)
-        XCTAssertNil(geoURI.altitude)
-        XCTAssertEqual(.wgs84, geoURI.crs)
-        XCTAssertNil(geoURI.uncertainty)
+    @Test(arguments: [180, -180])
+    func datelineCoordinates(arg: CLLocationDegrees) throws {
+        let coordinate = CLLocationCoordinate2D(latitude: 48.2010, longitude: arg)
+        let geoURI = try GeoURI(coordinate: coordinate)
+        #expect(geoURI.longitude == 180.0)
     }
     
-    // MARK: - init location
-
-    func testInitWithSimpleLocation() throws {
+    // MARK: - Location Initialization
+    
+    @Test func initWithLocation() throws {
         let location = CLLocation(latitude: 48.2010, longitude: 16.3695)
-        
         let geoURI = try GeoURI(location: location)
         
-        XCTAssertEqual(location.coordinate.latitude, geoURI.latitude)
-        XCTAssertEqual(location.coordinate.longitude, geoURI.longitude)
-        XCTAssertEqual(Double.zero, geoURI.altitude)
-        XCTAssertEqual(.wgs84, geoURI.crs)
-        XCTAssertEqual(location.horizontalAccuracy, geoURI.uncertainty)
+        #expect(geoURI.latitude == 48.201)
+        #expect(geoURI.longitude == 16.3695)
+        #expect(geoURI.altitude == .zero)
+        #expect(geoURI.crs == .wgs84)
+        #expect(geoURI.uncertainty == .zero)
     }
     
-    func testInitWithCompleteLocation() throws {
+    @Test func initWithFullLocation() throws {
         let coordinate = CLLocationCoordinate2D(latitude: 48.2010, longitude: 16.3695)
         
         let location = CLLocation(
@@ -115,63 +77,32 @@ final class GeoURI_CoreLocationTests: XCTestCase {
         
         let geoURI = try GeoURI(location: location)
         
-        XCTAssertEqual(location.coordinate.latitude, geoURI.latitude)
-        XCTAssertEqual(location.coordinate.longitude, geoURI.longitude)
-        XCTAssertEqual(location.altitude, geoURI.altitude)
-        XCTAssertEqual(.wgs84, geoURI.crs)
-        XCTAssertEqual(location.horizontalAccuracy, geoURI.uncertainty)
+        #expect(geoURI.latitude == 48.201)
+        #expect(geoURI.longitude == 16.3695)
+        #expect(geoURI.altitude == 183.0)
+        #expect(geoURI.crs == .wgs84)
+        #expect(geoURI.uncertainty == 1.0)
     }
     
-    func testInitWithLocationInvalidLatitude() throws {
-                
-        var location = CLLocation(
-            coordinate: CLLocationCoordinate2D(latitude: 90.01, longitude: 16.3695),
-            altitude: 183,
-            horizontalAccuracy: .zero,
-            verticalAccuracy: .zero,
-            timestamp: Date()
-        )
-        XCTAssertThrowsError(try GeoURI(location: location)) { error in
-            XCTAssertEqual(error as? GeoURIError, .invalidLatitude)
-        }
+    @Test(arguments: [90.01, -90.01])
+    func invalidLocationLatitude(arg: CLLocationDegrees) {
+        let location = CLLocation(latitude: arg, longitude: 16.3695)
         
-        location = CLLocation(
-            coordinate: CLLocationCoordinate2D(latitude: -90.01, longitude: 16.3695),
-            altitude: 183,
-            horizontalAccuracy: .zero,
-            verticalAccuracy: .zero,
-            timestamp: Date()
-        )
-        XCTAssertThrowsError(try GeoURI(location: location)) { error in
-            XCTAssertEqual(error as? GeoURIError, .invalidLatitude)
+        #expect(throws: GeoURIError.invalidLatitude) {
+            try GeoURI(location: location)
         }
     }
     
-    func testInitWithLocationInvalidLongitude() throws {
-        var location = CLLocation(
-            coordinate: CLLocationCoordinate2D(latitude: 48.2010, longitude: 180.01),
-            altitude: 183,
-            horizontalAccuracy: .zero,
-            verticalAccuracy: .zero,
-            timestamp: Date()
-        )
-        XCTAssertThrowsError(try GeoURI(location: location)) { error in
-            XCTAssertEqual(error as? GeoURIError, .invalidLongitude)
-        }
+    @Test(arguments: [180.01, -180.01])
+    func invalidLocationLongitude(arg: CLLocationDegrees) {
+        let location = CLLocation(latitude: 48.2010, longitude: arg)
         
-        location = CLLocation(
-            coordinate: CLLocationCoordinate2D(latitude: 48.2010, longitude: -180.01),
-            altitude: 183,
-            horizontalAccuracy: .zero,
-            verticalAccuracy: .zero,
-            timestamp: Date()
-        )
-        XCTAssertThrowsError(try GeoURI(location: location)) { error in
-            XCTAssertEqual(error as? GeoURIError, .invalidLongitude)
+        #expect(throws: GeoURIError.invalidLongitude) {
+            try GeoURI(location: location)
         }
     }
     
-    func testInitWithLocationInvalidUncertainty() throws {
+    @Test func invalidUncertainty() {
         let location = CLLocation(
             coordinate: CLLocationCoordinate2D(latitude: 48.2010, longitude: 16.3695),
             altitude: 183,
@@ -179,54 +110,51 @@ final class GeoURI_CoreLocationTests: XCTestCase {
             verticalAccuracy: .zero,
             timestamp: Date()
         )
-        XCTAssertThrowsError(try GeoURI(location: location)) { error in
-            XCTAssertEqual(error as? GeoURIError, .invalidUncertainty)
+        
+        #expect(throws: GeoURIError.invalidUncertainty) {
+            try GeoURI(location: location)
         }
     }
     
-    // MARK: - coordinate
+    // MARK: - Coordinate Generation
     
-    func testCoordinate() throws {
+    @Test func coordinate() throws {
         let geoURI = try GeoURI(latitude: 48.2010, longitude: 16.3695)
         
-        let coordinate = geoURI.coordinate
-        XCTAssertEqual(geoURI.latitude, coordinate.latitude)
-        XCTAssertEqual(geoURI.longitude, coordinate.longitude)
+        #expect(geoURI.coordinate.latitude == 48.201)
+        #expect(geoURI.coordinate.longitude == 16.3695)
     }
     
-    // MARK: - location
+    // MARK: - Location Generation
     
-    func testLocation() throws {
+    @Test func location() throws {
         let geoURI = try GeoURI(latitude: 48.2010, longitude: 16.3695)
-        let location = geoURI.location
         
-        XCTAssertEqual(geoURI.latitude, location.coordinate.latitude)
-        XCTAssertEqual(geoURI.longitude, location.coordinate.longitude)
-        XCTAssertEqual(Double.zero, location.altitude)
-        XCTAssertEqual(Double.zero, location.horizontalAccuracy)
-        XCTAssertEqual(Double.zero, location.verticalAccuracy)
+        #expect(geoURI.location.coordinate.latitude == 48.201)
+        #expect(geoURI.location.coordinate.longitude == 16.3695)
+        #expect(geoURI.location.altitude == .zero)
+        #expect(geoURI.location.horizontalAccuracy == .zero)
+        #expect(geoURI.location.verticalAccuracy == .zero)
     }
     
-    func testLocationWihtAltiitude() throws {
+    @Test func locationWithAltitude() throws {
         let geoURI = try GeoURI(latitude: 48.2010, longitude: 16.3695, altitude: -183)
-        let location = geoURI.location
         
-        XCTAssertEqual(geoURI.latitude, location.coordinate.latitude)
-        XCTAssertEqual(geoURI.longitude, location.coordinate.longitude)
-        XCTAssertEqual(Double(-183), location.altitude)
-        XCTAssertEqual(Double.zero, location.horizontalAccuracy)
-        XCTAssertEqual(Double.zero, location.verticalAccuracy)
+        #expect(geoURI.location.coordinate.latitude == 48.201)
+        #expect(geoURI.location.coordinate.longitude == 16.3695)
+        #expect(geoURI.location.altitude == -183.0)
+        #expect(geoURI.location.horizontalAccuracy == .zero)
+        #expect(geoURI.location.verticalAccuracy == .zero)
     }
     
-    func testLocationWithUncertanity() throws {
-        let geoURI = try GeoURI(latitude: 48.2010, longitude: 16.3695, uncertainty: 666)
-        let location = geoURI.location
+    @Test func locationWithUncertanity() throws {
+        let geoURI = try GeoURI(latitude: 48.2010, longitude: 16.3695, uncertainty: 1.0)
         
-        XCTAssertEqual(geoURI.latitude, location.coordinate.latitude)
-        XCTAssertEqual(geoURI.longitude, location.coordinate.longitude)
-        XCTAssertEqual(Double.zero, location.altitude)
-        XCTAssertEqual(Double(666), location.horizontalAccuracy)
-        XCTAssertEqual(Double.zero, location.verticalAccuracy)
+        #expect(geoURI.location.coordinate.latitude == 48.201)
+        #expect(geoURI.location.coordinate.longitude == 16.3695)
+        #expect(geoURI.location.altitude == .zero)
+        #expect(geoURI.location.horizontalAccuracy == 1.0)
+        #expect(geoURI.location.verticalAccuracy == .zero)
     }
 }
 
