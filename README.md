@@ -25,10 +25,9 @@ This package is available via [Swift Package Manager](https://www.swift.org/pack
 
 To install it, simply add the repo URL to your project in the usual way, and `import GeoURI` where needed.
 
-
 ## Usage
 
-A `GeoURI` type can be crated from its constituent components (latitude, longitude, and an optional altitude), or from a URL that conforms the [geo URI scheme](https://datatracker.ietf.org/doc/html/rfc5870).
+A `GeoURI` type can be created from its constituent components (latitude, longitude, and an optional altitude), or from a URL that conforms the [geo URI scheme](https://datatracker.ietf.org/doc/html/rfc5870).
 
 There are also CoreLocation extension to initialize a `GeoURI` from a `CLLocation` or `CLLocationCoordinate2D`.
 
@@ -36,11 +35,9 @@ An error will be thrown if any of the properties do not meet the specification.
 
 See the [documentation](#documentation) for a complete reference.
 
-
 ### Creating a GeoURI
 ```swift
 import GeoURI
-
 
 let geoURI = try? GeoURI(latitude: 48.2010, longitude: 16.3695, altitude: 183)
 let urlString = geoURI?.url.absoluteString // "geo:48.201,16.3695,183?crs=wgs84"
@@ -54,6 +51,21 @@ import GeoURI
 if let let url = URL(string: "geo:-48.876667,-123.393333") {
     let geoURI = try? GeoURI(url: url)
 }
+```
+
+### Create a GeoURI from a String
+
+```swift
+import GeoURI
+
+let geoURI = try GeoURI("geo:48.201,16.3695", format: GeoURI.FormatStyle)
+```
+
+### Create a String from a GeoURI
+
+```swift
+geoURI.formatted()      // "geo:48.201,16.3695"
+geoURI.formatted(.full) // "geo:48.201,16.3695;crs=wgs84"
 ```
 
 ### CoreLocation
@@ -74,10 +86,8 @@ import GeoURI
 if let url = URL(string: "geo:-48.876667,-123.393333") {
     do {
         let geoURI = try GeoURI(url: url)
-    } catch let parsingError as? GeoURIParsingError {
+    } catch GeoURIParsingError {
         print("A parsing error occurred: \(parsingError.errorDescription)")
-    } catch {
-        print("\(error)")
     }
 }
 ```
@@ -109,7 +119,7 @@ The documentation can then be viewed in the documentation viewer.
 ## Contributing
 
 Contributions are welcome! Please feel free to submit a pull request or open an issue on the GitHub repository.
-                                                                                                                             
+
 ## License
 
 

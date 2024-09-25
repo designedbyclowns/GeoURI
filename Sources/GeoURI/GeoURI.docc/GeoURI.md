@@ -68,3 +68,8 @@ _Challenger Deep – the deepest known point of the seabed of Earth, located in 
 
 - ``GeoURIError``
 - ``GeoURIParsingError``
+
+### Formatting
+
+- ``GeoURI/FormatStyle``
+- ``GeoURI/ParseStrategy``

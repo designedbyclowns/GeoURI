@@ -4,16 +4,16 @@ import Testing
 struct FormatStyleTests {
     @Test func formatted() async throws {
         var geoURI = try GeoURI(latitude: 48.2010, longitude: 16.3695)
-        #expect(geoURI.formatted() == "geo:48.201,16.3695;crs=wgs84")
+        #expect(geoURI.formatted() == "geo:48.201,16.3695")
         
         geoURI = try GeoURI(latitude: 48.2010, longitude: 16.3695, altitude: 183)
-        #expect(geoURI.formatted() == "geo:48.201,16.3695,183;crs=wgs84")
+        #expect(geoURI.formatted() == "geo:48.201,16.3695,183")
         
         geoURI = try GeoURI(latitude: 48.2010, longitude: 16.3695, altitude: 183, uncertainty: 66.60)
-        #expect(geoURI.formatted() == "geo:48.201,16.3695,183;crs=wgs84;u=66.6")
+        #expect(geoURI.formatted() == "geo:48.201,16.3695,183;u=66.6")
         
         geoURI = try GeoURI(latitude: 48.2010, longitude: 16.3695, uncertainty: 66.60)
-        #expect(geoURI.formatted() == "geo:48.201,16.3695;crs=wgs84;u=66.6")
+        #expect(geoURI.formatted() == "geo:48.201,16.3695;u=66.6")
     }
     
     @Test func fullStyle() async throws {

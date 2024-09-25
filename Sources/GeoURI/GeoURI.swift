@@ -55,7 +55,7 @@ public struct GeoURI: Sendable {
     /// Currently the only supported CRS is the [World Geodetic System 1984](https://earth-info.nga.mil/?dir=wgs84&action=wgs84) (WGS-84).
     ///
     /// - Note: See [rfc5870#section-3.4.1](https://datatracker.ietf.org/doc/html/rfc5870#section-3.4.1).
-    public let crs: CoordinateReferenceSystem = .wgs84
+    public let crs: CoordinateReferenceSystem
     
     /// Indicates the amount of uncertainty in the location as a value in meters.
     ///
@@ -102,6 +102,7 @@ public struct GeoURI: Sendable {
             }
         }
         self.uncertainty = uncertainty
+        self.crs = .wgs84
     }
     
     /// Creates a new GeoURI from the provided `String`.

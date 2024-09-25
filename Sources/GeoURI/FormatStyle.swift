@@ -1,11 +1,21 @@
 import Foundation
 
 public extension GeoURI {
+    /// A `FormatStyle` that converts a ``GeoURI`` into a string
+    ///  representation.
+    ///
+    ///Usage:
+    ///
+    ///  ```swift
+    ///  let geoURI = try! GeoURI(latitude: 48.2010, longitude: 16.3695)
+    ///  let short = geoURI.formatted(.short) // "geo:48.201,16.3695"
+    ///  let full = geoURI.formatted(.full)   // "geo:48.201,16.3695;crs=wgs84"
+    ///  ```
     struct FormatStyle: Foundation.FormatStyle {
-        
+        /// Include the Coordinate Reference System (CRS) in the formatted output.
         public var includeCRS: Bool
         
-        public init(includeCRS: Bool = true) {
+        public init(includeCRS: Bool = false) {
             self.includeCRS = includeCRS
         }
         
@@ -17,9 +27,12 @@ public extension GeoURI {
         
         // MARK: FormatStyle
         
+        /// The type this format style accepts as input.
         public typealias FormatInput = GeoURI
+        /// The type this format style produces as output.
         public typealias FormatOutput = String
         
+        /// Formats a ``GeoURI`` value, using this style.
         public func format(_ value: GeoURI) -> String {
             let path = [value.latitude, value.longitude, value.altitude]
                 .compactMap { $0 }
@@ -29,7 +42,7 @@ public extension GeoURI {
             var str = "geo:\(path)"
             
             if includeCRS {
-                str.append(";crs=\(value.crs.rawValue)")
+                str.append(";crs=\(value.crs)")
             }
             
             if let uncertainty = value.uncertainty {
@@ -49,13 +62,13 @@ extension FormatStyle where Self == GeoURI.FormatStyle {
 extension GeoURI {
     /// Converts `self` to its textual representation.
     /// - Returns: String
-    public func formatted(includeCRS: Bool = true) -> String {
+    public func formatted(includeCRS: Bool = false) -> String {
         Self.FormatStyle(includeCRS: includeCRS).format(self)
     }
     
-    /// Converts `self` to another representation.
+    /// Converts `self` to a string representation.
     /// - Parameter style: The format for formatting `self`
-    /// - Returns: A representations of `self` using the given `style`. The type of the return is determined by the FormatStyle.FormatOutput
+    /// - Returns: A string representations of `self` using the given `style`.
     public func formatted<F: Foundation.FormatStyle>(_ style: F) -> F.FormatOutput where F.FormatInput == GeoURI {
         style.format(self)
     }

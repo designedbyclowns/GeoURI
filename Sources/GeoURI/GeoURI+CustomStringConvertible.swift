@@ -2,7 +2,7 @@ import Foundation
 
 extension GeoURI: CustomStringConvertible {
     public var description: String {
-        self.formatted()
+        self.formatted(.full)
     }
 }
 
