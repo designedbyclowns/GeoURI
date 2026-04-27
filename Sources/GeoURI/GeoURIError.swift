@@ -1,6 +1,6 @@
 import Foundation
 
-public enum GeoURIError: Error, Equatable {
+public enum GeoURIError: Error, Equatable, Sendable {
     case malformed
     case badURL
     case incorrectScheme

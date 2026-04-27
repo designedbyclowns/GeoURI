@@ -147,7 +147,7 @@ struct GeoURI_CoreLocationTests {
         #expect(geoURI.location.verticalAccuracy == .zero)
     }
     
-    @Test func locationWithUncertanity() throws {
+    @Test func locationWithUncertainty() throws {
         let geoURI = try GeoURI(latitude: 48.2010, longitude: 16.3695, uncertainty: 1.0)
         
         #expect(geoURI.location.coordinate.latitude == 48.201)

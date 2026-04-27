@@ -3,7 +3,7 @@ import Testing
 
 struct ParseStrategyTests {
 
-    @Test func InitWithString() throws {
+    @Test func initWithString() throws {
         let geoURI = try GeoURI(string: "geo:48.2010,16.3695")
         
         #expect(geoURI.latitude == 48.2010)
@@ -14,7 +14,7 @@ struct ParseStrategyTests {
 
     }
     
-    @Test func InitWithFullString() throws {
+    @Test func initWithFullString() throws {
         let geoURI = try GeoURI(string: "geo:-48.2010,-16.3695,300;crs=wgs84;u=10")
         
         #expect(geoURI.latitude == -48.201)
@@ -54,7 +54,7 @@ struct ParseStrategyTests {
             "geo:-48.2010,-16.3695",
             "geo:90.0,180",
             "geo:-90.0,-180",
-        ]) func validCooredinate(arg: String) {
+        ]) func validCoordinate(arg: String) {
             #expect(throws: Never.self) {
                 _ = try GeoURI(string: arg)
             }
@@ -160,15 +160,8 @@ struct ParseStrategyTests {
         }
         
         @Test func unsupportedCRS() {
-            #expect {
+            #expect(throws: GeoURIError.unsupportedCoordinateReferenceSystem("nad27")) {
                 try GeoURI(string: "geo:48.2010,16.3695;crs=nad27")
-            } throws: { error in
-                guard let parsingError = error as? GeoURIError,
-                      case let .unsupportedCoordinateReferenceSystem(crs) = parsingError
-                else {
-                    return false
-                }
-                return crs == "nad27"
             }
         }
     }
