@@ -4,7 +4,6 @@
 [![Swift Package Manager](https://img.shields.io/badge/SPM-compatible-brightgreen.svg)](https://swift.org/package-manager)
 [![License](https://img.shields.io/github/license/designedbyclowns/GeoURI)](LICENSE)
 
-
 # GeoURI
 
 A Swift implementation of the geo URI scheme.
@@ -36,6 +35,7 @@ An error will be thrown if any of the properties do not meet the specification.
 See the [documentation](#documentation) for a complete reference.
 
 ### Create a GeoURI
+
 ```swift
 import GeoURI
 
@@ -80,6 +80,7 @@ let urlString = geoURI?.url.absoluteString // "geo:48.201,16.3695?crs=wgs84"
 ```
 
 ### Handling errors
+
 ```swift
 import GeoURI
 
@@ -96,14 +97,14 @@ if let url = URL(string: "geo:-48.876667,-123.393333") {
 
 Documentation of this package is provided via a [DocC](https://www.swift.org/documentation/docc/) documentation catalog.
 
-The official specification of [RFC 5870](https://datatracker.ietf.org/doc/html/rfc5870) is the canonical reference for the GeoURI scheme.
+The official specification of [RFC 5870](https://datatracker.ietf.org/doc/html/rfc5870) is the canonical reference for the geo URI scheme.
 
 ### Building the documentation
 
 To build the documentation from the command-line:
 
-```
-$ swift package generate-documentation
+```bash
+swift package generate-documentation
 ```
 
 Add the `--help` flag to get a list of all supported arguments and options.

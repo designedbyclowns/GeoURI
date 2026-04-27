@@ -25,7 +25,7 @@ geo:13.4125,103.8667
 
 ### Latitude & Longitude
 
-Latitude and longitude are represent by two numerical values, and are separated by a comma. They are coordinates of a horizontal grid (2D). 
+Latitude and longitude are represented by two numerical values, and are separated by a comma. They are coordinates of a horizontal grid (2D). 
 
 Coordinates in the Southern and Western hemispheres are signed negative with a leading dash.
 
@@ -33,7 +33,7 @@ Coordinates in the Southern and Western hemispheres are signed negative with a l
 geo:-48.876667,-123.393333
 ```
 
-_Point Nemo – also know as "the oceanic pole of inaccessibility" and is the place in the ocean that is farthest from land at latitude -48.876667 (48° 52′ 36″ S), and longitude -123.393333 (123° 23′ 36″ W)._
+_Point Nemo – also known as "the oceanic pole of inaccessibility" and is the place in the ocean that is farthest from land at latitude -48.876667 (48° 52′ 36″ S), and longitude -123.393333 (123° 23′ 36″ W)._
 
 
 ### Altitude
@@ -53,7 +53,7 @@ _Mount Everest – with an altitude of 8,848.86 m (29,031.7 ft) is earth's highe
 The geo URI specification also allows for an optional "uncertainty" value, separated by a semicolon, representing the uncertainty of the location in meters, and is described using the "u" URI parameter.
 
 ```
-geo:11.373333,142.591667,-10920?u=10
+geo:11.373333,142.591667,-10920;u=10
 ```
 
 _Challenger Deep – the deepest known point of the seabed of Earth, located in the western Pacific Ocean at the southern end of the Mariana Trench with an uncertainty of ± 10 meters._

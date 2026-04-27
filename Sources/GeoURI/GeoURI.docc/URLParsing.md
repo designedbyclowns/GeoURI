@@ -1,4 +1,4 @@
-# Parsing URL's
+# Parsing URLs
 
 ## Creating a GeoURI from a URL
 
@@ -8,17 +8,17 @@ A GeoURI can be created from a URL that conforms to the geo URI scheme.
 
 The URL must adhere to the [rfc5870](https://datatracker.ietf.org/doc/html/rfc5870) specification – the basics of which are summarized here.
 
-A ``GeoURI/GeoURIParsingError`` will be thrown if the provided URL does not meet the expected criteria.
+A ``GeoURIParsingError`` will be thrown if the provided URL does not meet the expected criteria.
 
 ### Scheme
 
-- The scheme scheme subcomponent of the URL must be the string "geo".
+- The scheme subcomponent of the URL must be the string "geo".
 
 ### Path
 
 - The path subcomponent of the URL must consist of 2 to 3 numeric values representing ``GeoURI/latitude``, ``GeoURI/longitude``, and optionally ``GeoURI/altitude``, respectively.
-- Latitude value outside the range of -90 to 90 degrees are considered invalid.
-- Longitude value outside the range of -180 to 180 degrees are considered invalid.
+- Latitude values outside the range of -90 to 90 degrees are considered invalid.
+- Longitude values outside the range of -180 to 180 degrees are considered invalid.
 - The ``GeoURI/longitude`` of coordinate values reflecting the poles (``GeoURI/latitude`` values of -90 or 90 degrees) will be set to 0 since all longitude values are equal at the poles.
 - A ``GeoURI/longitude`` of -180 degrees will be set to 180 as both represent the international dateline and must be considered equal.
 - The ``GeoURI/altitude`` component is optional. If provided, the value is interpreted to be relative to a surface defined by Earth's gravity approximating the mean sea level.
@@ -27,7 +27,7 @@ A ``GeoURI/GeoURIParsingError`` will be thrown if the provided URL does not meet
 
 ### Query Parameters
 
-The geo URI specification allows for two query parameters; Uncertainty (u) and Coordinate Reference System (crs) in the query subcomponent of the URL. Both of which are optional.
+The geo URI specification allows for two query parameters: Uncertainty (u) and Coordinate Reference System (crs) in the query subcomponent of the URL. Both of which are optional.
 
 If a parameter is provided, it must only be provided once. The names and values of query parameters are case-insensitive.
 
@@ -53,7 +53,7 @@ The ``GeoURI/uncertainty`` parameter represents the "uncertainty" of the locatio
 geo:11.373333,142.591667,-10920?u=10
 ```
 
-If present, its value must be greater than or equal to zero. When not provided, the the uncertainty is assumed to be unknown.
+If present, its value must be greater than or equal to zero. When not provided, the uncertainty is assumed to be unknown.
 
 If the intent is to indicate a specific point in space, the value _may_ be set to zero. The value applies to all dimensions of the location.
 
