@@ -2,7 +2,7 @@ import Testing
 @testable import GeoURI
 
 struct FormatStyleTests {
-    @Test func formatted() async throws {
+    @Test func formatted() throws {
         var geoURI = try GeoURI(latitude: 48.2010, longitude: 16.3695)
         #expect(geoURI.formatted() == "geo:48.201,16.3695")
         
@@ -16,7 +16,7 @@ struct FormatStyleTests {
         #expect(geoURI.formatted() == "geo:48.201,16.3695;u=66.6")
     }
     
-    @Test func fullStyle() async throws {
+    @Test func fullStyle() throws {
         var geoURI = try GeoURI(latitude: 48.2010, longitude: 16.3695)
         #expect(geoURI.formatted(.full) == "geo:48.201,16.3695;crs=wgs84")
         
@@ -30,7 +30,7 @@ struct FormatStyleTests {
         #expect(geoURI.formatted(.full) == "geo:48.201,16.3695;crs=wgs84;u=66.6")
     }
     
-    @Test func shortStyle() async throws {
+    @Test func shortStyle() throws {
         var geoURI = try GeoURI(latitude: 48.2010, longitude: 16.3695)
         #expect(geoURI.formatted(.short) == "geo:48.201,16.3695")
         

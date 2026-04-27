@@ -1,6 +1,6 @@
 import Foundation
 
-public enum GeoURIError: Error, Equatable {
+public enum GeoURIError: Error, Equatable, Sendable {
     case malformed
     case badURL
     case incorrectScheme
@@ -59,5 +59,5 @@ extension GeoURIError: LocalizedError {
 }
 
 extension GeoURIError: CustomNSError {
-    public static let errorDomain = "com.desigendbyclowns.GeoURI"
+    public static let errorDomain = "com.designedbyclowns.GeoURI"
 }

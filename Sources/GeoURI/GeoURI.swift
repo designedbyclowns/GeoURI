@@ -144,6 +144,7 @@ public struct GeoURI: Sendable {
     
     // MARK: - Private
     
+    // Regex is not Sendable; safe because the value is immutable and matching is read-only.
     nonisolated(unsafe) private static let regex = Regex {
         Anchor.startOfLine
         "geo:"

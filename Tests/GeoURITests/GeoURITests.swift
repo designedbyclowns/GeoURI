@@ -52,9 +52,9 @@ struct GeoURITests {
         }
         
         @Test(arguments: [180.0000000001, -180.0000000001])
-        func invalidLongitud(arg: Double) {
-            #expect(throws: GeoURIError.invalidLatitude) {
-                try GeoURI(latitude: arg, longitude: 16.3695)
+        func invalidLongitude(arg: Double) {
+            #expect(throws: GeoURIError.invalidLongitude) {
+                try GeoURI(latitude: 48.2010, longitude: arg)
             }
         }
         
@@ -117,7 +117,7 @@ struct GeoURITests {
      
      https://datatracker.ietf.org/doc/html/rfc5870#section-3.4.3
      */
-    @Test func Uncertainty() throws {
+    @Test func uncertainty() throws {
         var geoURI = try GeoURI(latitude: 48.2010, longitude: 16.3695)
         #expect(geoURI.uncertainty == nil)
         

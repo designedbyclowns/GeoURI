@@ -3,7 +3,7 @@ import Foundation
 /**
  Indicates an error parsing a GeoURI from a URL.
  */
-public struct GeoURIParsingError: Error {
+public struct GeoURIParsingError: Error, Sendable {
     /// The `URL` that could not be parsed.
     public let url: URL
     /// The underlying ``GeoURIError``.
